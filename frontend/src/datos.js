@@ -57,8 +57,18 @@ export const datos = modoDemostracion ? {
   async eliminar(codigo) {
     localStorage.setItem(clave, JSON.stringify(leerEjemplos().filter((registro) => registro.codigo !== codigo)));
   },
+  async editar(estudiante) {
+    const registros = leerEjemplos();
+    if (!registros.some(({ codigo }) => codigo === estudiante.codigo)) {
+      throw new Error('El estudiante ya no existe.');
+    }
+    localStorage.setItem(clave, JSON.stringify(registros.map((registro) =>
+      registro.codigo === estudiante.codigo ? estudiante : registro)));
+    return estudiante;
+  },
 } : {
   listar: () => peticion('GET'),
   agregar: (estudiante) => peticion('POST', '', estudiante),
   eliminar: (codigo) => peticion('DELETE', codigo),
+  editar: (estudiante) => peticion('PUT', estudiante.codigo, estudiante),
 };

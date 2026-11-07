@@ -56,5 +56,13 @@ export function usarEstudiantes() {
     );
   }
 
-  return { estudiantes, solicitud, cargar, agregar, eliminar };
+  function editar(estudiante) {
+    return ejecutar(
+      'editar', 'Guardando cambios…', () => datos.editar(estudiante),
+      (actuales, editado) => actuales.map((registro) => registro.codigo === editado.codigo ? editado : registro),
+      'Cambios guardados correctamente.',
+    );
+  }
+
+  return { estudiantes, solicitud, cargar, agregar, editar, eliminar };
 }
