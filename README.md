@@ -1,6 +1,6 @@
 # Gestor de estudiantes · Grupo 7
 
-Actividad práctica 7.2 del Taller de Construcción de Software Web. La aplicación registra y elimina estudiantes, filtra por nombre, código o carrera y muestra el estado de cada operación.
+Actividad práctica 7.2 del Taller de Construcción de Software Web. El gestor registra, edita y elimina estudiantes. Su interfaz toma como referencia el índice, la cabecera y las pestañas del Aula Virtual FISI.
 
 - [Aplicación en GitHub Pages](https://andrey3210.github.io/gestor-estudiantes-grupo-7/)
 - [Informe de la práctica](informe/Informe-grupo-7.pdf)
@@ -26,6 +26,7 @@ Abre [http://localhost:5173](http://localhost:5173). El frontend en desarrollo c
 | --- | --- | --- |
 | GET | `/api/estudiantes` | `200 OK` con la lista |
 | POST | `/api/estudiantes` | `201 Created` con el registro |
+| PUT | `/api/estudiantes/{codigo}` | `200 OK` con el registro actualizado |
 | DELETE | `/api/estudiantes/{codigo}` | `204 No Content` |
 
 Ejemplo de cuerpo para el POST.
@@ -38,13 +39,15 @@ Ejemplo de cuerpo para el POST.
 }
 ```
 
-La API responde con `400` si un campo es inválido, `409` si el código ya existe y `404` si el código a eliminar no está registrado.
+La API responde con `400` ante datos inválidos o un intento de cambiar el código, `409` si se intenta registrar un código duplicado y `404` si el registro a editar o eliminar no existe.
 
 ## Estado en React
 
 - `useState` guarda la lista, los campos del formulario, la búsqueda y el registro pendiente de eliminar.
-- `useReducer` administra las transiciones de carga, éxito y error para listar, agregar y eliminar.
+- `useReducer` administra las transiciones de carga, éxito y error para listar, agregar, editar y eliminar.
 - El componente `App` comparte datos y funciones con el formulario y el directorio mediante props. El filtro se calcula sobre la lista al escribir.
+
+El directorio combina búsqueda sin tildes, filtro por carrera y orden por código o nombre. La tabla muestra seis filas por página. La exportación CSV incluye todos los resultados filtrados y el resumen agrupa el directorio completo por carrera.
 
 ## Despliegue
 
