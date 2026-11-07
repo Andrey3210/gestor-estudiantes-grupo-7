@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,6 +48,17 @@ class EstudianteControlador {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un estudiante con ese código.");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(estudiante);
+    }
+
+    @PutMapping("/{codigo}")
+    Estudiante editar(@PathVariable String codigo, @Valid @RequestBody Estudiante estudiante) {
+        if (!codigo.equals(estudiante.codigo())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El código del estudiante no se puede cambiar.");
+        }
+        if (estudiantes.replace(codigo, estudiante) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El estudiante ya no existe.");
+        }
+        return estudiante;
     }
 
     @DeleteMapping("/{codigo}")

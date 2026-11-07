@@ -26,7 +26,7 @@ class ConfiguracionWeb implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registro) {
         registro.addMapping("/api/**")
                 .allowedOrigins(origenes)
-                .allowedMethods("GET", "POST", "DELETE")
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("Content-Type");
     }
 }
