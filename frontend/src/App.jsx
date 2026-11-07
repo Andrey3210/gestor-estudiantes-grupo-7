@@ -2,6 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import { carreras, modoDemostracion } from './datos.js';
 import { usarEstudiantes } from './operaciones.js';
 import { exportarCSV } from './csv.js';
+import { Actividad, Estadisticas, Evidencias } from './Vistas.jsx';
+
+const vistas = {
+  inicio: { nombre: 'Actividad', indice: 'Información general' },
+  directorio: { nombre: 'Directorio', indice: 'Directorio estudiantil' },
+  resumen: { nombre: 'Estadísticas', indice: 'Distribución por carrera' },
+  evidencias: { nombre: 'Evidencias', indice: 'Informe y capturas' },
+};
+const secciones = Object.entries(vistas);
+
+function leerSeccion() {
+  return window.location.hash.slice(1);
+}
 
 const rutas = {
   registro: 'm2 8 10-5 10 5-10 5-10-5Zm5 3v5a9 9 0 0 0 10 0v-5m4-2v6',
@@ -84,7 +97,7 @@ function Directorio({ estudiantes, carrerasDisponibles, consulta, onBuscar, filt
   const actual = Math.min(pagina, paginas);
   const inicio = (actual - 1) * porPagina;
   const filas = estudiantes.slice(inicio, inicio + porPagina);
-  return <section id="directorio" className="panel directorio" aria-labelledby="titulo-directorio">
+  return <section className="panel directorio" aria-labelledby="titulo-directorio">
     <div className="directorio-cabecera">
       <div className="titulo-panel">
         <span className="icono icono-violeta"><Icono nombre="usuarios" /></span>
@@ -175,7 +188,11 @@ export function App() {
   const [edicion, setEdicion] = useState(null);
   const [porEliminar, setPorEliminar] = useState(null);
   const [indiceAbierto, setIndiceAbierto] = useState(true);
+  const [fragmento, setFragmento] = useState(leerSeccion);
+  const seccion = fragmento === 'formulario' ? 'directorio' : Object.hasOwn(vistas, fragmento) ? fragmento : 'inicio';
+  const titulo = useRef(null);
   const ocupado = solicitud.estado === 'cargando';
+  const estadoListado = solicitud.operacion === 'listar' && solicitud.estado !== 'exito';
   const termino = normalizar(consulta.trim());
   const visibles = estudiantes.filter(({ codigo, nombre, carrera }) =>
     (!filtro || filtro === carrera) && [codigo, nombre, carrera].some((dato) => normalizar(dato).includes(termino)))
@@ -183,8 +200,20 @@ export function App() {
   const totales = new Map();
   for (const { carrera } of estudiantes) totales.set(carrera, (totales.get(carrera) ?? 0) + 1);
   const carrerasDisponibles = [...new Set([...carreras, ...totales.keys()])];
-  const secciones = [['inicio', 'Información general'], ['directorio', 'Directorio estudiantil'],
-    ['formulario', 'Registro de estudiantes'], ['resumen', 'Resumen por carrera'], ['evidencias', 'Evidencias']];
+  useEffect(() => {
+    const actualizarSeccion = () => setFragmento(leerSeccion());
+    window.addEventListener('hashchange', actualizarSeccion);
+    return () => window.removeEventListener('hashchange', actualizarSeccion);
+  }, []);
+
+  useEffect(() => {
+    if (fragmento === 'formulario') {
+      document.getElementById('nombre')?.focus();
+    } else if (fragmento) {
+      titulo.current.focus({ preventScroll: true });
+      window.scrollTo(0, 0);
+    }
+  }, [fragmento]);
 
   function empezarEdicion(estudiante) {
     setEdicion(estudiante);
@@ -207,7 +236,7 @@ export function App() {
         <span className="etiqueta-grupo">Grupo 7 <span aria-hidden="true">·</span> Actividad 7.2</span>
       </div>
     </header>
-    <div className={'aula ' + (indiceAbierto ? '' : 'aula-compacta')}>
+    <div className={'aula ' + (indiceAbierto ? '' : 'aula-compacta')} data-vista={seccion}>
       <div className="carril">
         <button className="alternar-indice" type="button" aria-label="Índice de secciones"
           aria-expanded={indiceAbierto} aria-controls="indice" onClick={() => setIndiceAbierto(!indiceAbierto)}>
@@ -220,25 +249,28 @@ export function App() {
       <aside id="indice" className="indice" hidden={!indiceAbierto}>
         <h2>Índice de la actividad</h2>
         <nav aria-label="Índice de la actividad">
-          {secciones.map(([id, titulo], i) => <a href={'#' + id} key={id}><span>{i + 1}</span>{titulo}</a>)}
+          {secciones.map(([id, vista], i) => <a href={'#' + id} key={id}
+            aria-current={id === seccion ? 'page' : undefined}><span>{i + 1}</span>{vista.indice}</a>)}
         </nav>
       </aside>
-      <main id="inicio" className="curso">
+      <main className="curso">
         <section className="portada" aria-labelledby="titulo">
           <div className="envoltura portada-contenido">
-            <span className="actividad">ACTIVIDAD PRÁCTICA 7.2</span>
-            <h1 id="titulo">Gestión de estudiantes</h1>
-            <p>Taller de Construcción de Software Web <span aria-hidden="true">›</span> Grupo 7 <span aria-hidden="true">›</span> Registro académico</p>
+            <span className="actividad">ACTIVIDAD PRÁCTICA 7.2 · GRUPO 7</span>
+            <h1 id="titulo" ref={titulo} tabIndex={-1}>Gestión de estudiantes</h1>
+            <p>Taller de Construcción de Software Web <span aria-hidden="true">›</span> {vistas[seccion].nombre}</p>
           </div>
         </section>
         <div className="envoltura contenido">
           <nav className="pestanas" aria-label="Accesos de la actividad">
-            <a href="#inicio">Actividad</a><a href="#directorio">Directorio</a><a href="#resumen">Estadísticas</a><a href="#evidencias">Evidencias</a>
+            {secciones.map(([id, vista]) => <a href={'#' + id} key={id}
+              aria-current={id === seccion ? 'page' : undefined}>{vista.nombre}</a>)}
           </nav>
-          <div className="columnas">
+          {seccion === 'inicio' && <Actividad />}
+          {seccion === 'directorio' && <div className="columnas vista">
             <div className="principal">
-              <div className="encabezado-seccion"><h2>Información general</h2><span>React + Spring Boot</span></div>
-              <p className="descripcion">Consulta el directorio, administra registros y revisa los resultados de la práctica.</p>
+              <div className="titulo-vista"><h2>Administración de estudiantes</h2>
+                <p>Busca, filtra y ordena el directorio. Exporta los resultados actuales o actualiza un registro.</p></div>
               <Estado solicitud={solicitud} onReintentar={cargar} />
               <Directorio estudiantes={visibles} carrerasDisponibles={carrerasDisponibles}
                 consulta={consulta} filtro={filtro} orden={orden} pagina={pagina}
@@ -247,15 +279,6 @@ export function App() {
                 onOrdenar={(valor) => { setOrden(valor); setPagina(1); }}
                 onCambiarPagina={setPagina} onEditar={empezarEdicion}
                 onPedirBaja={setPorEliminar} ocupado={ocupado} cargaInicial={ocupado && solicitud.operacion === 'listar'} />
-              <section id="resumen" className="panel resumen" aria-labelledby="titulo-resumen">
-                <div className="titulo-panel"><span className="icono icono-menta"><Icono nombre="carrera" /></span>
-                  <div><h2 id="titulo-resumen">Resumen por carrera</h2><p>Distribución del directorio completo.</p></div></div>
-                <ul className="distribucion">{carrerasDisponibles.map((carrera) => {
-                  const total = totales.get(carrera) ?? 0;
-                  return <li key={carrera}><span>{carrera}</span>
-                    <meter min="0" max={estudiantes.length || 1} value={total} aria-label={carrera} /><strong>{total}</strong></li>;
-                })}</ul>
-              </section>
             </div>
             <div className="lateral">
               <section className="panel ficha" aria-label="Estado del registro">
@@ -265,13 +288,13 @@ export function App() {
               </section>
               <Formulario key={edicion?.codigo ?? 'nuevo'} estudiante={edicion} onGuardar={guardar}
                 onCancelar={() => setEdicion(null)} ocupado={ocupado} />
-              <section id="evidencias" className="panel recursos" aria-labelledby="titulo-evidencias">
-                <div className="encabezado-seccion"><h2 id="titulo-evidencias">Evidencias</h2></div>
-                <a href="https://github.com/Andrey3210/gestor-estudiantes-grupo-7/blob/main/informe/Informe-grupo-7.pdf">Informe de la práctica <span>PDF</span></a>
-                <a href="https://github.com/Andrey3210/gestor-estudiantes-grupo-7">Código fuente <span>GitHub</span></a>
-              </section>
             </div>
-          </div>
+          </div>}
+          {seccion === 'resumen' && <div className="principal">
+            {estadoListado && <Estado solicitud={solicitud} onReintentar={cargar} />}
+            <Estadisticas cantidad={estudiantes.length} totales={totales} carrerasDisponibles={carrerasDisponibles} />
+          </div>}
+          {seccion === 'evidencias' && <Evidencias />}
           <footer className="pie">
             <span>Taller de Construcción de Software Web · Grupo 7</span>
             <span className="modo"><span />{modoDemostracion ? 'Modo demostración · datos de este navegador' : 'Modo API · Spring Boot'}</span>
