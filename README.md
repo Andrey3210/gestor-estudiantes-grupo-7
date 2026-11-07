@@ -2,6 +2,7 @@
 
 Actividad práctica 7.2 del Taller de Construcción de Software Web. La aplicación registra y elimina estudiantes, filtra por nombre, código o carrera y muestra el estado de cada operación.
 
+- [Aplicación en GitHub Pages](https://andrey3210.github.io/gestor-estudiantes-grupo-7/)
 - [Informe de la práctica](informe/Informe-grupo-7.pdf)
 
 ## Ejecutar con la API
@@ -47,7 +48,7 @@ La API responde con `400` si un campo es inválido, `409` si el código ya exist
 
 ## Despliegue
 
-El flujo de GitHub Actions está listo para publicar el frontend. Para activarlo, selecciona **GitHub Actions** como origen en **Settings → Pages**. Por defecto, la compilación de producción usa el modo demostración con datos ficticios guardados en el navegador.
+GitHub Actions publica el frontend en Pages a partir de la rama `main`. La versión publicada usa el modo demostración con datos ficticios guardados en el navegador.
 
 Para conectar la versión de Pages a Spring Boot, despliega el `Dockerfile` de `backend/` en un servicio con HTTPS. Agrega su URL base, sin `/api/estudiantes`, a la variable de repositorio `VITE_API_URL` en **Settings → Secrets and variables → Actions → Variables**. Vuelve a ejecutar el flujo **Publicar en GitHub Pages**. La API admite el origen `https://andrey3210.github.io` de forma predeterminada. Para otras instalaciones, configura `ORIGENES_FRONTEND` con los orígenes permitidos separados por comas.
 
