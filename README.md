@@ -5,6 +5,8 @@ Actividad práctica 7.2 del Taller de Construcción de Software Web. El gestor r
 - [Aplicación en GitHub Pages](https://andrey3210.github.io/gestor-estudiantes-grupo-7/)
 - [Informe de la práctica](informe/Informe-grupo-7.pdf)
 
+El aula tiene cuatro vistas con enlaces directos. [Actividad](https://andrey3210.github.io/gestor-estudiantes-grupo-7/#inicio) reúne la consigna y una guía de prueba. [Directorio](https://andrey3210.github.io/gestor-estudiantes-grupo-7/#directorio) permite administrar registros. [Estadísticas](https://andrey3210.github.io/gestor-estudiantes-grupo-7/#resumen) muestra el reparto por carrera y [Evidencias](https://andrey3210.github.io/gestor-estudiantes-grupo-7/#evidencias) ofrece el PDF y la galería de pruebas.
+
 ## Ejecutar con la API
 
 Necesitas Java 17 o superior, Maven y Node.js 24. Abre dos terminales desde la raíz del repositorio.
